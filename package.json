@@ -1,0 +1,21 @@
+{
+  "name": "Moonch",
+  "author": "Lito @ Azuqua, inc.",
+  "version": "0.0.1",
+  "description": "A type-preserving templating engine",
+  "license": "MIT",
+  "main": "index.js",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "chai": "*"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/azuqua/moonch.git"
+  }
+}
