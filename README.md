@@ -16,7 +16,7 @@ The types supported are:
 - html
 - url
 
-Also, some types can be coerced to other types.
+Types can be coerced to other types:
 
     "{{a : num -> string}}" where {'a': 1}
     => "1"
@@ -33,7 +33,8 @@ HTML and URL Escaping
 For escaping HTML or URL special characters, Moonch provides `html` and 
 `url` types!
 
-    "{{title : string -> html}}
+    {{title : string -> html}}
+
 
 Use
 ---

@@ -1,29 +1,7 @@
 "use strict";
 
-var ParseError = require('./errors').ParseError;
-
-function isString(x){
-  return (typeof x) === "string";
-}
-function isNumber(x){
-  return (typeof x) === "number";
-}
-function isArray(x){
-  return Array.isArray(x);
-}
-function isFunction(x) {
-  return !!(x && x.constructor && x.call && x.apply);
-}
-function isObject(x){
-  return (typeof x) === 'object' && x !== null && !isArray(x) && !isFunction(x);
-}
-function isBool(x){
-  return (typeof x) === 'boolean';
-}
-function isNull(x){
-  return x === null;
-}
-
+var ParseError = require('./errors').ParseError, 
+    type = require('./typecheck');
 
 function lexPath(path){
   return path.split(".")
@@ -121,7 +99,7 @@ function lex(template){
 //    ]`
 function parse(template){
 
-  if (!isString(template)) {
+  if (!type.isString(template)) {
     throw new ParseError("Template must be a string");
   } else if (template.indexOf("{{") === -1) { 
     // Short circuit for non-stached strings
@@ -229,7 +207,7 @@ function coerce(item, from, to) {
   var output;
   switch(from){
     case 'string':
-      if (!isString(item)) { 
+      if (!type.isString(item)) { 
         throw new TypeError(item+" was expected to be a string, but isn't.");
       } else if (to === 'string') {
         output = item;
@@ -252,7 +230,7 @@ function coerce(item, from, to) {
       break;
 
     case 'num':
-      if (!isNumber(item)) { 
+      if (!type.isNumber(item)) { 
         throw new TypeError(item+" was expected to be a number, but isn't.");
       } else if (to === 'string') {
         output = item.toString();
@@ -264,7 +242,7 @@ function coerce(item, from, to) {
       break;
 
     case 'bool':
-      if (!isBool(item)) { 
+      if (!type.isBool(item)) { 
         throw new TypeError(item+" was expected to be an array, but isn't.");
       }
       if (to !== 'bool') {
@@ -273,7 +251,7 @@ function coerce(item, from, to) {
       break;
 
     case 'array':
-      if (!isArray(item)) { 
+      if (!type.isArray(item)) { 
         throw new TypeError(item + " was expected to be an array, but isn't.");
       } else if (to !== 'array') {
         throw new TypeError("Can't convert from 'array' to anything else");
@@ -283,7 +261,7 @@ function coerce(item, from, to) {
       break;
 
     case 'obj':
-      if (!isObject(item)) { 
+      if (!type.isObject(item)) { 
         throw new TypeError(item+" was expected to be a object, but isn't.");
       } else if (to !== 'obj') {
         throw new TypeError("Can't convert from 'obj' to anything else");
@@ -293,7 +271,7 @@ function coerce(item, from, to) {
       break;
 
     case 'null':
-      if (!isNull(item)) { 
+      if (!type.isNull(item)) { 
         throw new TypeError(item+" was expected to be null, but isn't.");
       } else if (to !== 'null') {
         throw new TypeError("Can't convert from 'null' to anything else");
@@ -349,12 +327,12 @@ function render(template, env){
   var typedOutput;
   parseTree.forEach(function(node) {
 
-    if (isString(node)) {
+    if (type.isString(node)) {
       stringOutput.push(node);
     } else {
       var item = lookup(node.path, env);
       var output = coerce(item, node.from, node.to);
-      if (isString(output)) {
+      if (type.isString(output)) {
         stringOutput.push(output);
       } else if (typedOutput !== undefined) {
         throw new TypeError(
