@@ -5,6 +5,7 @@ var should = require('chai').should(),
     fail = require('chai').fail;
 
 var t = require('../moonch.js'),
+    api = require('../'),
     ParseError = require('../errors').ParseError;
 
 
@@ -358,4 +359,57 @@ describe("rendering a template", function() {
     (function(){t.render("{{a[b] : num}}", {"a": 1});}).should.throw(ParseError);
   });
 
+});
+
+describe("the public-facing API", function() {
+  it("renders a template", function() {
+    api.render("{{a: num -> string}}", {'a': 1}).should.equal("1");
+  });
+
+  describe("mapping across JSON objects", function() {
+    it("renders a JSON object", function() {
+      var obj = {
+        "a": "{{namamugi : string -> num}}", 
+        "b": {
+          "d": [
+            "{{namagome}}",
+            "ordinary string"
+          ],
+          "c": {
+            "e": "{{namatamago : string -> html}}"
+          }
+        }
+      };
+      var env = {
+        "namamugi": "1",
+        "namagome": "rice",
+        "namatamago": "<eggs>"
+      };
+      api.map(obj, env).should.deep.equal({
+        "a": 1, 
+        "b": {
+          "d": [
+            "rice",
+            "ordinary string"
+          ],
+          "c": {
+            "e": "&lt;eggs&gt;"
+          }
+        }
+      });
+    });
+
+    it("refuses non-JSON objects", function() {
+      var obj = {
+        "a": true, 
+        "b": {
+          "c": "{{x}}"
+        }
+      };
+      var env = {
+        "x": "hello",
+      };
+      (function(){api.map(obj, env);}).should.throw(TypeError);
+    });
+  });
 });
