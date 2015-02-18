@@ -363,10 +363,12 @@ describe("rendering a template", function() {
     it("has maybe types", function() {
       t.render("{{a : string? -> string?}}", { 'a': "kaeru ga kaeru" })
         .should.equal('kaeru ga kaeru');
+      t.render("{{a : string? -> html?}}", { 'a': "kaeru ga kaeru>" })
+        .should.equal('kaeru ga kaeru&gt;');
     });
     it("maybe types pass on null and undefined", function() {
       assert(t.render("{{a : string? -> string?}}", { 'a': null}) === null);
-      assert(t.render("{{a : string? -> string?}}", { 'a': undefined }) === undefined);
+      assert(t.render("{{a : object? -> object?}}", { 'a': undefined }) === undefined);
     });
     it("requires maybe types to match", function() {
       (function(){t.render("{{a : string? -> string}}",
