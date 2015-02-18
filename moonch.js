@@ -1,6 +1,6 @@
 "use strict";
 
-var ParseError = require('./errors').ParseError, 
+var ParseError = require('./errors').ParseError,
     type = require('./typecheck');
 
 function lexPath(path){
@@ -29,15 +29,15 @@ function parseInsideTriple(texp){
           "to": "string"
   };
 }
-  
+
 // Parses what's inside {{ }}'s
-//    "a.b.c : num -> string" => 
+//    "a.b.c : num -> string" =>
 //    {"path": ["a", "b", "c"], "from": "num", "to": "string"}
 function parseInside(texp){
   var tokens = lexInside(texp);
 
   // Edge case where there are (illegal) nested braces, but with a string
-  // between them. (e.g. "{{ hello {{a:num}} }} ). 
+  // between them. (e.g. "{{ hello {{a:num}} }} ).
   // Would make outer-parsing more complicated, so handled here instead.
   if (tokens.indexOf("{{") > -1) {
     throw new ParseError("Nested template expressions are not allowed");
@@ -55,7 +55,7 @@ function parseInside(texp){
         "Expected the second atom of the template expression"+
         " to be ':', but found "+tokens[1]+" instead");
   }
-  if (tokens.length === 3) { 
+  if (tokens.length === 3) {
       return {"path": lexPath(tokens[0]),
               "from": tokens[2],
               "to": tokens[2]
@@ -65,9 +65,9 @@ function parseInside(texp){
       throw new ParseError(
           "Expected the fourth atom of the template expression"+
           " to be '->', but found "+tokens[3]+" instead");
-    } else { 
-      return {"path": lexPath(tokens[0]), 
-              "from": tokens[2], 
+    } else {
+      return {"path": lexPath(tokens[0]),
+              "from": tokens[2],
               "to": tokens[4]
       };
     }
@@ -79,13 +79,13 @@ function parseInside(texp){
 }
 
 function lex(template){
-  if (!template) { 
-    return []; 
+  if (!template) {
+    return [];
   } else {
-    // Split at double-curlies, then delete instances 
+    // Split at double-curlies, then delete instances
     // of the empty string left over from splitting.
     return template.split(/({{{|}}}|{{|}})/)
-                   .filter(function(c){return c !== "";}); 
+                   .filter(function(c){return c !== "";});
   }
 }
 
@@ -93,23 +93,23 @@ function lex(template){
 //    `"She sells {{a: string}} by the seashore"`
 //  into  the form
 //    `[
-//      "She sells ", 
-//      {ident: "a", from: "string", to: "string"}, 
+//      "She sells ",
+//      {ident: "a", from: "string", to: "string"},
 //      " by the seashore"
 //    ]`
 function parse(template){
 
   if (!type.isString(template)) {
     throw new ParseError("Template must be a string");
-  } else if (template.indexOf("{{") === -1) { 
+  } else if (template.indexOf("{{") === -1) {
     // Short circuit for non-stached strings
-    // TBH, kind of a hack to avoid a million special parsing cases
+    // TBH, kind of a hack. Avoids a million special parsing cases
     return [template];
   }
 
   var tokens = lex(template);
 
-  var braces = []; 
+  var braces = [];
 
   var parsedExp = [];
   tokens.forEach(function(token) {
@@ -172,22 +172,22 @@ var htmlEntities = {
 };
 
 var urlEntities = {
-  "!": "%23", 
-  "$": "%24", 
-  "&": "%26", 
-  "'": "%27", 
-  "(": "%28", 
-  ")": "%29", 
-  "*": "%2A", 
-  "+": "%2B", 
-  ",": "%2C", 
-  "/": "%2F", 
-  ":": "%3A", 
-  ";": "%3B", 
-  "=": "%3D", 
-  "?": "%3F", 
-  "@": "%40", 
-  "[": "%5B", 
+  "!": "%23",
+  "$": "%24",
+  "&": "%26",
+  "'": "%27",
+  "(": "%28",
+  ")": "%29",
+  "*": "%2A",
+  "+": "%2B",
+  ",": "%2C",
+  "/": "%2F",
+  ":": "%3A",
+  ";": "%3B",
+  "=": "%3D",
+  "?": "%3F",
+  "@": "%40",
+  "[": "%5B",
   "]": "%5D"
 };
 
@@ -203,16 +203,39 @@ function toUrl(s){
   });
 }
 
+// Is a maybe-type? (can hold null or undefined)
+function isMaybe(s){
+  return s[s.length - 1] === "?";
+}
+
 function coerce(item, from, to) {
   var output;
+  // Maybe types- e.g. string? will pass on null and undefined
+  if (isMaybe(from)) {
+    if (!isMaybe(to)) {
+      throw new TypeError(
+        "expected destination to be a maybe type (end with a '?')"
+      );
+    }
+    if (item === null || item === undefined) {
+      return item;
+    }
+  }
+  // Clean up maybe types for coercion
+  if (isMaybe(from)) {
+    from = from.slice(0, -1);
+  }
+  if (isMaybe(to)) {
+    to = to.slice(0, -1);
+  }
   switch(from){
     case 'string':
-      if (!type.isString(item)) { 
+      if (!type.isString(item)) {
         throw new TypeError(item+" was expected to be a string, but isn't.");
       } else if (to === 'string') {
         output = item;
       } else if (to === 'num') {
-        // Using +(str) to coerce to number because parseFloat accepts 
+        // Using +(str) to coerce to number because parseFloat accepts
         // non-number chars after a digit.
         var tmp = +(item);
         if (isNaN(tmp)) {
@@ -230,7 +253,7 @@ function coerce(item, from, to) {
       break;
 
     case 'num':
-      if (!type.isNumber(item)) { 
+      if (!type.isNumber(item)) {
         throw new TypeError(item+" was expected to be a number, but isn't.");
       } else if (to === 'string') {
         output = item.toString();
@@ -242,7 +265,7 @@ function coerce(item, from, to) {
       break;
 
     case 'bool':
-      if (!type.isBool(item)) { 
+      if (!type.isBool(item)) {
         throw new TypeError(item+" was expected to be an array, but isn't.");
       }
       if (to !== 'bool') {
@@ -251,7 +274,7 @@ function coerce(item, from, to) {
       break;
 
     case 'array':
-      if (!type.isArray(item)) { 
+      if (!type.isArray(item)) {
         throw new TypeError(item + " was expected to be an array, but isn't.");
       } else if (to !== 'array') {
         throw new TypeError("Can't convert from 'array' to anything else");
@@ -261,7 +284,7 @@ function coerce(item, from, to) {
       break;
 
     case 'obj':
-      if (!type.isObject(item)) { 
+      if (!type.isObject(item)) {
         throw new TypeError(item+" was expected to be a object, but isn't.");
       } else if (to !== 'obj') {
         throw new TypeError("Can't convert from 'obj' to anything else");
@@ -271,7 +294,7 @@ function coerce(item, from, to) {
       break;
 
     case 'null':
-      if (!type.isNull(item)) { 
+      if (!type.isNull(item)) {
         throw new TypeError(item+" was expected to be null, but isn't.");
       } else if (to !== 'null') {
         throw new TypeError("Can't convert from 'null' to anything else");
@@ -300,11 +323,14 @@ function coerce(item, from, to) {
 
 // Walks along a path, looking up properties from the environment. At each
 // stage, it makes sure that property exists.
-function lookup(path, env) {
+function lookup(path, env, isMaybe) {
   var ret = env;
   for (var i = 0; i < path.length; i++) {
     var tmp = ret[path[i]];
     if (tmp === undefined) {
+      if (isMaybe) {
+        return undefined;
+      }
       throw new ParseError(
         "Can't find property '"+path[i]+"'"+
         " of environment "+JSON.stringify(ret)
@@ -319,7 +345,7 @@ function lookup(path, env) {
 function render(template, env){
   if (template === undefined || env === undefined) {
     throw new Error("Render needs both a template and an environment");
-  } 
+  }
 
   var parseTree = parse(template);
 
@@ -330,7 +356,7 @@ function render(template, env){
     if (type.isString(node)) {
       stringOutput.push(node);
     } else {
-      var item = lookup(node.path, env);
+      var item = lookup(node.path, env, isMaybe(node.from));
       var output = coerce(item, node.from, node.to);
       if (type.isString(output)) {
         stringOutput.push(output);

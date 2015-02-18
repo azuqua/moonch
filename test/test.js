@@ -359,6 +359,22 @@ describe("rendering a template", function() {
     (function(){t.render("{{a[b] : num}}", {"a": 1});}).should.throw(ParseError);
   });
 
+  describe("support for maybe types", function() {
+    it("has maybe types", function() {
+      t.render("{{a : string? -> string?}}", { 'a': "kaeru ga kaeru" })
+        .should.equal('kaeru ga kaeru');
+    });
+    it("maybe types pass on null and undefined", function() {
+      assert(t.render("{{a : string? -> string?}}", { 'a': null}) === null);
+      assert(t.render("{{a : string? -> string?}}", { 'a': undefined }) === undefined);
+    });
+    it("requires maybe types to match", function() {
+      (function(){t.render("{{a : string? -> string}}",
+                          {"a": "drunk stone lions"});})
+        .should.throw(TypeError);
+    });
+  });
+
 });
 
 describe("the public-facing API", function() {
