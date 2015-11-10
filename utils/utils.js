@@ -1,11 +1,22 @@
 "use strict";
 
-var utils = require('../lib/utils'),
-    crypto = require('crypto'),
+var crypto = require('crypto'),
     qs = require('querystring');
 
+
+function scopeObject(obj, scope) {
+  scope = Array.isArray(scope) ? scope : String(scope).trim().split('.');
+
+  for (var i = 0, l = scope.length; i < l; i++) {
+    if (!obj) break;
+    obj = obj[scope[i]];
+  }
+
+  return (obj === undefined) ? null: obj;
+};
+
 function guaranteeString(scope, objPath) {
-  var obj = utils.scopeObject(scope, objPath) || '',
+  var obj = scopeObject(scope, objPath) || '',
       objString = (typeof obj === 'string') ? obj : JSON.stringify(obj);
 
   return objString;
@@ -42,7 +53,7 @@ exports.base64 = function(unEncoded, render) {
 };
 
 exports.querystringify = function(objPath) {
-  var query = utils.scopeObject(this, objPath);
+  var query = scopeObject(this, objPath);
   return qs.stringify(query);
 };
 
