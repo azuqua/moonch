@@ -1,21 +1,29 @@
 {
   "name": "Moonch",
-  "author": "Lito @ Azuqua, inc.",
-  "version": "0.0.1",
-  "description": "A type-preserving templating engine",
-  "license": "MIT",
-  "main": "index.js",
+  "company": "Azuqua",
+  "version": "1.0.0",
+  "description": "Mustach style rendering",
+  "author": "Kevin McTigue & Lito Nicolai && Osmond Gunarso",
+  "private": true,
+  "main": "index",
   "dependencies": {
-  },
-  "devDependencies": {
-    "mocha": "*",
-    "chai": "*"
+    "async": "^1.4.2",
+    "lodash": "2.4.1",
+    "mustache": "^2.2.0"
   },
   "scripts": {
     "test": "mocha"
   },
+  "devDependencies": {
+    "chai": "^3.4.0",
+    "mocha": "^2.3.3",
+    "node-uuid": "^1.4.3"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/azuqua/moonch.git"
+    "url": "https://github.com/azuqua/moonch#master"
+  },
+  "engines": {
+    "node": "~0.12.2"
   }
 }
