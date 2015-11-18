@@ -1,7 +1,7 @@
 {
-  "name": "Moonch",
+  "name": "moonch",
   "company": "Azuqua",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Mustach style rendering",
   "author": "Kevin McTigue & Lito Nicolai && Osmond Gunarso",
   "private": true,
