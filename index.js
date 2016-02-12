@@ -24,7 +24,7 @@ function mixin(obj, properties, whitelist) {
 }
 
 exports.render = function(obj, _renderWith) {
-  var renderWith = (typeof renderWith === 'object') ? _renderWith : {};
+  var renderWith = (typeof _renderWith === 'object') ? _renderWith : {};
 
   renderWith = mixin({
     utils: new Utils(renderWith)
