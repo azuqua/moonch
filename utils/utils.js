@@ -29,13 +29,16 @@ function trimArrayStrings(str) {
   else return str.trim();
 }
 
-exports.unstringify = exports.stringify = function unstringify(objPath) {
+function unstringify(objPath) {
   var objString = guaranteeString(this, objPath);
 
   if (!objString) objString = JSON.stringify(null);
 
   return JSON.stringify(objString).slice(1, -1);
 };
+
+exports.stringify = unstringify;
+exports.unstringify = unstringify;
 
 //{{#utils.hash}}} my{{mustached.data}}, hash, digestvalue {{/utils.hash}}
 exports.hash = function(objPath, render) {
