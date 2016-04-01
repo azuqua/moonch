@@ -29,7 +29,7 @@ function trimArrayStrings(str) {
   else return str.trim();
 }
 
-exports.unstringify = function unstringify(objPath) {
+exports.unstringify = exports.stringify = function unstringify(objPath) {
   var objString = guaranteeString(this, objPath);
 
   if (!objString) objString = JSON.stringify(null);
