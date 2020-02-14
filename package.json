@@ -8,17 +8,12 @@
   "main": "index",
   "dependencies": {
     "async": "^1.4.2",
-    "lodash": "2.4.1",
     "mustache": "^2.2.0"
   },
   "scripts": {
     "test": "mocha"
   },
-  "devDependencies": {
-    "chai": "^3.4.0",
-    "mocha": "^2.3.3",
-    "node-uuid": "^1.4.3"
-  },
+  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "https://github.com/azuqua/moonch#master"
